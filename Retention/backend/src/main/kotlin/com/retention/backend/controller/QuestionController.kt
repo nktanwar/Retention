@@ -1,13 +1,16 @@
 package com.retention.backend.controller
 
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RestController
+import com.retention.backend.dto.AddQuestionRequestDto
+import com.retention.backend.model.QuestionModel
+import com.retention.backend.service.QuestionService
+import org.springframework.web.bind.annotation.*
 
-
-@RestController("/questions")
-class QuestionController {
+@RestController
+@RequestMapping("/questions")
+class QuestionController(
+    private val questionService: QuestionService
+) {
     @PostMapping("/add")
-    fun addQuestion() {
-
-    }
+    fun addQuestion(@RequestBody request: AddQuestionRequestDto): QuestionModel =
+        questionService.addQuestion(request)
 }

@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>GATE CS — Add Question</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background: #f0f2f5; }
+        .card { border-radius: 1rem; }
+        h3.card-title { font-weight: 600; color: #0d6efd; }
+        .chip {
+          display: inline-flex;
+          align-items: center;
+          padding: 0.35rem 0.75rem;
+          margin: 0.25rem;
+          border-radius: 999px;
+          background: #e9f2ff;
+          color: #0d6efd;
+          font-size: 0.9rem;
+        }
+        .chip button {
+          border: 0;
+          background: transparent;
+          margin-left: 0.35rem;
+          font-size: 1rem;
+          color: #0d6efd;
+          line-height: 1;
+        }
+        .option-row { display: flex; gap: 0.5rem; align-items: center; }
+        .option-row input { flex: 1; }
+        #jsonPreview {
+          background: #1e1e1e;
+          color: #dcdcdc;
+          border-radius: 0.5rem;
+          font-size: 0.85rem;
+        }
+        #status { font-weight: 500; }
+    </style>
+</head>
+<body>
+<div class="container py-5">
+    <div class="card shadow-lg">
+        <div class="card-body p-4">
+            <h3 class="card-title mb-3">➕ Add GATE CS Question</h3>
+            <p class="text-muted mb-4">Fill in the form below. It will automatically send your input as JSON to <code>/create</code>.</p>
+
+            <form id="questionForm" class="needs-validation" novalidate>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Subject</label>
+                        <input name="subject" id="subject" class="form-control" placeholder="e.g. Algorithms" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Difficulty</label>
+                        <select id="difficulty" class="form-select" required>
+                            <option value="">Choose difficulty</option>
+                            <option>Easy</option>
+                            <option>Medium</option>
+                            <option>Hard</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mt-4 mb-3">
+                    <label class="form-label">Question Text</label>
+                    <textarea id="questionText" class="form-control" rows="4" placeholder="Type the question here..." required></textarea>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">Options</label>
+                    <div id="optionsList" class="mb-2"></div>
+                    <div class="d-flex gap-2 mb-2">
+                        <button type="button" id="addOptionBtn" class="btn btn-outline-primary btn-sm">➕ Add option</button>
+                        <button type="button" id="resetOptionsBtn" class="btn btn-outline-secondary btn-sm">Reset to 4</button>
+                    </div>
+                    <div class="form-text">Add at least 2 options. Then select the correct answer.</div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">Correct Answer</label>
+                    <select id="correctAnswer" class="form-select" required></select>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">Topics</label>
+                    <div class="d-flex gap-2 mb-2">
+                        <input id="topicInput" class="form-control" placeholder="e.g. Dynamic Programming">
+                        <button type="button" id="addTopicBtn" class="btn btn-outline-primary">Add</button>
+                    </div>
+                    <div id="topicsContainer"></div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">Subtopics <small class="text-muted">(optional)</small></label>
+                    <div class="d-flex gap-2 mb-2">
+                        <input id="subtopicInput" class="form-control" placeholder="e.g. Longest Increasing Subsequence">
+                        <button type="button" id="addSubtopicBtn" class="btn btn-outline-primary">Add</button>
+                    </div>
+                    <div id="subtopicsContainer"></div>
+                </div>
+
+                <div class="d-flex gap-2 align-items-center mb-3">
+                    <button type="submit" class="btn btn-success">💾 Save Question</button>
+                    <button type="button" id="previewBtn" class="btn btn-outline-dark">👁 Preview JSON</button>
+                    <div id="status" class="ms-3"></div>
+                </div>
+
+                <div id="jsonPreview" class="card p-3" style="display:none; white-space:pre-wrap; font-family:monospace; max-height:300px; overflow:auto"></div>
+            </form>
+
+            <hr />
+            <small class="text-muted">💡 Tips: Add at least 2 options. Select the correct answer. Topics help in filtering later.</small>
+        </div>
+    </div>
+</div>
+
+<script>
+    const optionsList = document.getElementById('optionsList');
+    const correctSelect = document.getElementById('correctAnswer');
+    const topicsContainer = document.getElementById('topicsContainer');
+    const subtopicsContainer = document.getElementById('subtopicsContainer');
+    const status = document.getElementById('status');
+    const jsonPreview = document.getElementById('jsonPreview');
+
+    function createOptionRow(value = ''){
+      const div = document.createElement('div');
+      div.className = 'mb-2 option-row';
+
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.className = 'form-control';
+      input.placeholder = 'Option text';
+      input.value = value;
+      input.required = true;
+
+      const removeBtn = document.createElement('button');
+      removeBtn.type = 'button';
+      removeBtn.className = 'btn btn-outline-danger btn-sm';
+      removeBtn.textContent = '✖';
+      removeBtn.onclick = () => { div.remove(); refreshCorrectOptions(); };
+
+      div.appendChild(input);
+      div.appendChild(removeBtn);
+      return div;
+    }
+
+    function refreshCorrectOptions(){
+      correctSelect.innerHTML = '';
+      const inputs = Array.from(optionsList.querySelectorAll('input'));
+      inputs.forEach((inp, idx) => {
+        const opt = document.createElement('option');
+        opt.value = inp.value || `Option ${idx+1}`;
+        opt.textContent = inp.value || `Option ${idx+1}`;
+        correctSelect.appendChild(opt);
+      });
+    }
+
+    function createChip(text, container){
+      const span = document.createElement('span');
+      span.className = 'chip';
+      span.textContent = text;
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.innerHTML = '&times;';
+      btn.onclick = () => span.remove();
+      span.appendChild(btn);
+      container.appendChild(span);
+    }
+
+    function resetOptions(){
+      optionsList.innerHTML = '';
+      for(let i=1;i<=4;i++) optionsList.appendChild(createOptionRow(''));
+      refreshCorrectOptions();
+    }
+
+    document.getElementById('addOptionBtn').addEventListener('click', ()=>{
+      optionsList.appendChild(createOptionRow(''));
+      refreshCorrectOptions();
+    });
+    document.getElementById('resetOptionsBtn').addEventListener('click', resetOptions);
+
+    optionsList.addEventListener('input', ()=>{
+      const prev = correctSelect.value;
+      refreshCorrectOptions();
+      if(Array.from(correctSelect.options).some(o=>o.value===prev)) correctSelect.value = prev;
+    });
+
+    document.getElementById('addTopicBtn').addEventListener('click', ()=>{
+      const v = document.getElementById('topicInput').value.trim();
+      if(!v) return; createChip(v, topicsContainer); document.getElementById('topicInput').value='';
+    });
+    document.getElementById('addSubtopicBtn').addEventListener('click', ()=>{
+      const v = document.getElementById('subtopicInput').value.trim();
+      if(!v) return; createChip(v, subtopicsContainer); document.getElementById('subtopicInput').value='';
+    });
+
+    document.getElementById('previewBtn').addEventListener('click', ()=>{
+      jsonPreview.style.display = jsonPreview.style.display === 'none' ? 'block' : 'none';
+      if(jsonPreview.style.display === 'block') jsonPreview.textContent = JSON.stringify(buildPayload(), null, 2);
+    });
+
+    function buildPayload(){
+      const subject = document.getElementById('subject').value.trim();
+      const difficulty = document.getElementById('difficulty').value;
+      const questionText = document.getElementById('questionText').value.trim();
+      const optionInputs = Array.from(optionsList.querySelectorAll('input'));
+      const options = optionInputs.map(i=>i.value.trim()).filter(s=>s.length>0);
+      const correctAnswer = correctSelect.value;
+      const topics = Array.from(topicsContainer.querySelectorAll('.chip')).map(c=>c.firstChild.textContent);
+      const subtopics = Array.from(subtopicsContainer.querySelectorAll('.chip')).map(c=>c.firstChild.textContent);
+
+      return {
+        subject,
+        questionText,
+        options,
+        correctAnswer,
+        difficulty,
+        topic: topics,
+        subTopic: subtopics.length ? subtopics : null
+      };
+    }
+
+    document.getElementById('questionForm').addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      status.innerHTML = '';
+
+      const payload = buildPayload();
+      if(!payload.subject || !payload.questionText){
+        status.innerHTML = '<span class="text-danger">Please fill subject and question text.</span>';
+        return;
+      }
+      if(payload.options.length < 2){
+        status.innerHTML = '<span class="text-danger">Please provide at least 2 non-empty options.</span>';
+        return;
+      }
+      if(!payload.correctAnswer || !payload.options.includes(payload.correctAnswer)){
+        status.innerHTML = '<span class="text-danger">Correct answer must match one of the options.</span>';
+        return;
+      }
+      if(!payload.topic || payload.topic.length === 0){
+        status.innerHTML = '<span class="text-danger">Add at least one topic.</span>';
+        return;
+      }
+
+      try{
+        status.innerHTML = '<span class="text-muted">Saving…</span>';
+        const resp = await fetch('/create', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify(payload)
+        });
+        if(resp.ok){
+          status.innerHTML = '<span class="text-success">✅ Saved successfully!</span>';
+          document.getElementById('questionForm').reset();
+          topicsContainer.innerHTML = '';
+          subtopicsContainer.innerHTML = '';
+          resetOptions();
+          jsonPreview.style.display='none';
+        } else {
+          const text = await resp.text();
+          status.innerHTML = `<span class="text-danger">Save failed: ${text || resp.status}</span>`;
+        }
+      }catch(err){
+        status.innerHTML = `<span class="text-danger">Network error: ${err.message}</span>`;
+      }
+    });
+
+    resetOptions();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
