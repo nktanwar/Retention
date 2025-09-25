@@ -43,7 +43,7 @@
     <div class="card shadow-lg">
         <div class="card-body p-4">
             <h3 class="card-title mb-3">➕ Add GATE CS Question</h3>
-            <p class="text-muted mb-4">Fill in the form below. It will automatically send your input as JSON to <code>/create</code>.</p>
+            <p class="text-muted mb-4">Fill in the form below. It will automatically send your input as JSON to <code>/questions/add</code>.</p>
 
             <form id="questionForm" class="needs-validation" novalidate>
                 <div class="row g-3">
@@ -100,6 +100,20 @@
                     <div id="subtopicsContainer"></div>
                 </div>
 
+                <div class="mb-4">
+                    <label class="form-label">Tags <small class="text-muted">(optional)</small></label>
+                    <div class="d-flex gap-2 mb-2">
+                        <input id="tagInput" class="form-control" placeholder="e.g. DP, Graphs, Arrays">
+                        <button type="button" id="addTagBtn" class="btn btn-outline-primary">Add</button>
+                    </div>
+                    <div id="tagsContainer"></div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">Image URL <small class="text-muted">(optional)</small></label>
+                    <input type="url" id="imageUrl" class="form-control" placeholder="https://example.com/image.png" />
+                </div>
+
                 <div class="d-flex gap-2 align-items-center mb-3">
                     <button type="submit" class="btn btn-success">💾 Save Question</button>
                     <button type="button" id="previewBtn" class="btn btn-outline-dark">👁 Preview JSON</button>
@@ -120,6 +134,7 @@
     const correctSelect = document.getElementById('correctAnswer');
     const topicsContainer = document.getElementById('topicsContainer');
     const subtopicsContainer = document.getElementById('subtopicsContainer');
+    const tagsContainer = document.getElementById('tagsContainer');
     const status = document.getElementById('status');
     const jsonPreview = document.getElementById('jsonPreview');
 
@@ -194,6 +209,10 @@
       const v = document.getElementById('subtopicInput').value.trim();
       if(!v) return; createChip(v, subtopicsContainer); document.getElementById('subtopicInput').value='';
     });
+    document.getElementById('addTagBtn').addEventListener('click', ()=>{
+      const v = document.getElementById('tagInput').value.trim();
+      if(!v) return; createChip(v, tagsContainer); document.getElementById('tagInput').value='';
+    });
 
     document.getElementById('previewBtn').addEventListener('click', ()=>{
       jsonPreview.style.display = jsonPreview.style.display === 'none' ? 'block' : 'none';
@@ -209,6 +228,8 @@
       const correctAnswer = correctSelect.value;
       const topics = Array.from(topicsContainer.querySelectorAll('.chip')).map(c=>c.firstChild.textContent);
       const subtopics = Array.from(subtopicsContainer.querySelectorAll('.chip')).map(c=>c.firstChild.textContent);
+      const tags = Array.from(tagsContainer.querySelectorAll('.chip')).map(c=>c.firstChild.textContent);
+      const imageUrl = document.getElementById('imageUrl').value.trim() || null;
 
       return {
         subject,
@@ -217,7 +238,9 @@
         correctAnswer,
         difficulty,
         topic: topics,
-        subTopic: subtopics.length ? subtopics : null
+        subTopic: subtopics.length ? subtopics : null,
+        tags: tags.length ? tags : null,
+        imageUrl
       };
     }
 
@@ -245,7 +268,7 @@
 
       try{
         status.innerHTML = '<span class="text-muted">Saving…</span>';
-        const resp = await fetch('/create', {
+        const resp = await fetch('http://localhost:8080/questions/add', {
           method: 'POST',
           headers: {'Content-Type':'application/json'},
           body: JSON.stringify(payload)
@@ -255,6 +278,7 @@
           document.getElementById('questionForm').reset();
           topicsContainer.innerHTML = '';
           subtopicsContainer.innerHTML = '';
+          tagsContainer.innerHTML = '';
           resetOptions();
           jsonPreview.style.display='none';
         } else {

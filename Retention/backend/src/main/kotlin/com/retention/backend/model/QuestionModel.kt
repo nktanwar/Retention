@@ -14,4 +14,6 @@ data class QuestionModel(
     val difficulty: String,
     val topic : List<String>,
     val subTopic : List<String>? = null,
+    val tags : List<String>? = null,
+    val imageUrl : String? = null
 )
