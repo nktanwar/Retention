@@ -10,7 +10,7 @@ data class QuestionModel(
     val subject: String,
     val questionText: String,
     val options: List<String>,
-    val correctAnswer: String,
+    val correctAnswer: List<String>,
     val difficulty: String,
     val topic : List<String>,
     val subTopic : List<String>? = null,

@@ -225,7 +225,7 @@
       const questionText = document.getElementById('questionText').value.trim();
       const optionInputs = Array.from(optionsList.querySelectorAll('input'));
       const options = optionInputs.map(i=>i.value.trim()).filter(s=>s.length>0);
-      const correctAnswer = correctSelect.value;
+      const correctAnswer = [correctSelect.value];
       const topics = Array.from(topicsContainer.querySelectorAll('.chip')).map(c=>c.firstChild.textContent);
       const subtopics = Array.from(subtopicsContainer.querySelectorAll('.chip')).map(c=>c.firstChild.textContent);
       const tags = Array.from(tagsContainer.querySelectorAll('.chip')).map(c=>c.firstChild.textContent);
@@ -257,10 +257,15 @@
         status.innerHTML = '<span class="text-danger">Please provide at least 2 non-empty options.</span>';
         return;
       }
-      if(!payload.correctAnswer || !payload.options.includes(payload.correctAnswer)){
-        status.innerHTML = '<span class="text-danger">Correct answer must match one of the options.</span>';
-        return;
-      }
+     if(!payload.correctAnswer || payload.correctAnswer.length === 0){
+  status.innerHTML = '<span class="text-danger">Please select a correct answer.</span>';
+  return;
+}
+if(!payload.correctAnswer.every(ans => payload.options.includes(ans))){
+  status.innerHTML = '<span class="text-danger">Correct answer must match one of the options.</span>';
+  return;
+}
+
       if(!payload.topic || payload.topic.length === 0){
         status.innerHTML = '<span class="text-danger">Add at least one topic.</span>';
         return;
