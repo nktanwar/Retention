@@ -1,6 +1,7 @@
 package com.retention.backend.model
 
 import org.springframework.data.annotation.Id
+import org.springframework.data.mongodb.core.aggregation.ArrayOperators
 import org.springframework.data.mongodb.core.mapping.Document
 
 @Document(collection = "questions")
@@ -16,7 +17,10 @@ data class QuestionModel(
     val subTopic : List<String>? = null,
     val tags : List<String>? = null,
     val imageUrl : String? = null,
-    val questionType : QuestionType
+    val questionType : QuestionType,
+    val pyqYear : Int? = null,
+    val marks : Int? = null
+
 )
 
 enum class QuestionType {
@@ -24,3 +28,5 @@ enum class QuestionType {
     MCQ,
     NAT
 }
+
+

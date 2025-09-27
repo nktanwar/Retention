@@ -33,18 +33,18 @@
             <h3 class="card-title mb-3">➕ Add GATE CS Question</h3>
             <form id="questionForm" class="needs-validation" novalidate>
                 <div class="row g-3">
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label class="form-label">Subject</label>
                         <input id="subject" class="form-control" placeholder="e.g. Algorithms" required>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label class="form-label">Difficulty</label>
                         <select id="difficulty" class="form-select" required>
                             <option value="">Choose difficulty</option>
                             <option>Easy</option><option>Medium</option><option>Hard</option>
                         </select>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label class="form-label">Question Type</label>
                         <select id="questionType" class="form-select" required>
                             <option value="">Choose type</option>
@@ -52,6 +52,17 @@
                             <option value="MSQ">MSQ</option>
                             <option value="NAT">NAT</option>
                         </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Marks</label>
+                        <input type="number" id="marks" class="form-control" placeholder="e.g. 2" min="1">
+                    </div>
+                </div>
+
+                <div class="row g-3 mt-2">
+                    <div class="col-md-3">
+                        <label class="form-label">PYQ Appear Year<small>(optional)</small></label>
+                        <input type="number" id="appearYear" class="form-control" placeholder="e.g. 2022" min="1990" max="2099">
                     </div>
                 </div>
 
@@ -211,10 +222,12 @@
       const subtopics = Array.from(subtopicsContainer.querySelectorAll('.chip')).map(c=>c.firstChild.textContent);
       const tags = Array.from(tagsContainer.querySelectorAll('.chip')).map(c=>c.firstChild.textContent);
       const imageUrl = document.getElementById('imageUrl').value.trim() || null;
+      const marks = parseInt(document.getElementById('marks').value) || null;
+      const appearYear = parseInt(document.getElementById('appearYear').value) || null;
 
       return { subject, questionText, options, correctAnswer, difficulty, topic: topics,
         subTopic: subtopics.length ? subtopics : null, tags: tags.length ? tags : null,
-        imageUrl, questionType };
+        imageUrl, questionType, marks, appearYear };
     }
 
     document.getElementById('questionForm').addEventListener('submit', async (e)=>{
