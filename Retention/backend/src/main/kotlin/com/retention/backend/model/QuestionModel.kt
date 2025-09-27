@@ -15,5 +15,12 @@ data class QuestionModel(
     val topic : List<String>,
     val subTopic : List<String>? = null,
     val tags : List<String>? = null,
-    val imageUrl : String? = null
+    val imageUrl : String? = null,
+    val questionType : QuestionType
 )
+
+enum class QuestionType {
+    MSQ,
+    MCQ,
+    NAT
+}

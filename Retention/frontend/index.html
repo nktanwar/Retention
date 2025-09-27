@@ -19,22 +19,10 @@
           color: #0d6efd;
           font-size: 0.9rem;
         }
-        .chip button {
-          border: 0;
-          background: transparent;
-          margin-left: 0.35rem;
-          font-size: 1rem;
-          color: #0d6efd;
-          line-height: 1;
-        }
+        .chip button { border: 0; background: transparent; margin-left: 0.35rem; font-size: 1rem; color: #0d6efd; line-height: 1; }
         .option-row { display: flex; gap: 0.5rem; align-items: center; }
         .option-row input { flex: 1; }
-        #jsonPreview {
-          background: #1e1e1e;
-          color: #dcdcdc;
-          border-radius: 0.5rem;
-          font-size: 0.85rem;
-        }
+        #jsonPreview { background: #1e1e1e; color: #dcdcdc; border-radius: 0.5rem; font-size: 0.85rem; }
         #status { font-weight: 500; }
     </style>
 </head>
@@ -43,21 +31,26 @@
     <div class="card shadow-lg">
         <div class="card-body p-4">
             <h3 class="card-title mb-3">➕ Add GATE CS Question</h3>
-            <p class="text-muted mb-4">Fill in the form below. It will automatically send your input as JSON to <code>/questions/add</code>.</p>
-
             <form id="questionForm" class="needs-validation" novalidate>
                 <div class="row g-3">
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <label class="form-label">Subject</label>
-                        <input name="subject" id="subject" class="form-control" placeholder="e.g. Algorithms" required>
+                        <input id="subject" class="form-control" placeholder="e.g. Algorithms" required>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <label class="form-label">Difficulty</label>
                         <select id="difficulty" class="form-select" required>
                             <option value="">Choose difficulty</option>
-                            <option>Easy</option>
-                            <option>Medium</option>
-                            <option>Hard</option>
+                            <option>Easy</option><option>Medium</option><option>Hard</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Question Type</label>
+                        <select id="questionType" class="form-select" required>
+                            <option value="">Choose type</option>
+                            <option value="MCQ">MCQ</option>
+                            <option value="MSQ">MSQ</option>
+                            <option value="NAT">NAT</option>
                         </select>
                     </div>
                 </div>
@@ -67,21 +60,20 @@
                     <textarea id="questionText" class="form-control" rows="4" placeholder="Type the question here..." required></textarea>
                 </div>
 
-                <div class="mb-4">
+                <!-- Options (only for MCQ/MSQ) -->
+                <div class="mb-4" id="optionsBlock">
                     <label class="form-label">Options</label>
                     <div id="optionsList" class="mb-2"></div>
                     <div class="d-flex gap-2 mb-2">
                         <button type="button" id="addOptionBtn" class="btn btn-outline-primary btn-sm">➕ Add option</button>
                         <button type="button" id="resetOptionsBtn" class="btn btn-outline-secondary btn-sm">Reset to 4</button>
                     </div>
-                    <div class="form-text">Add at least 2 options. Then select the correct answer.</div>
                 </div>
 
-                <div class="mb-4">
-                    <label class="form-label">Correct Answer</label>
-                    <select id="correctAnswer" class="form-select" required></select>
-                </div>
+                <!-- Correct Answer -->
+                <div class="mb-4" id="correctAnswerBlock"></div>
 
+                <!-- Topics -->
                 <div class="mb-4">
                     <label class="form-label">Topics</label>
                     <div class="d-flex gap-2 mb-2">
@@ -91,47 +83,46 @@
                     <div id="topicsContainer"></div>
                 </div>
 
+                <!-- Subtopics -->
                 <div class="mb-4">
-                    <label class="form-label">Subtopics <small class="text-muted">(optional)</small></label>
+                    <label class="form-label">Subtopics <small>(optional)</small></label>
                     <div class="d-flex gap-2 mb-2">
-                        <input id="subtopicInput" class="form-control" placeholder="e.g. Longest Increasing Subsequence">
+                        <input id="subtopicInput" class="form-control" placeholder="e.g. LIS">
                         <button type="button" id="addSubtopicBtn" class="btn btn-outline-primary">Add</button>
                     </div>
                     <div id="subtopicsContainer"></div>
                 </div>
 
+                <!-- Tags -->
                 <div class="mb-4">
-                    <label class="form-label">Tags <small class="text-muted">(optional)</small></label>
+                    <label class="form-label">Tags <small>(optional)</small></label>
                     <div class="d-flex gap-2 mb-2">
-                        <input id="tagInput" class="form-control" placeholder="e.g. DP, Graphs, Arrays">
+                        <input id="tagInput" class="form-control" placeholder="e.g. DP, Graphs">
                         <button type="button" id="addTagBtn" class="btn btn-outline-primary">Add</button>
                     </div>
                     <div id="tagsContainer"></div>
                 </div>
 
                 <div class="mb-4">
-                    <label class="form-label">Image URL <small class="text-muted">(optional)</small></label>
+                    <label class="form-label">Image URL <small>(optional)</small></label>
                     <input type="url" id="imageUrl" class="form-control" placeholder="https://example.com/image.png" />
                 </div>
 
                 <div class="d-flex gap-2 align-items-center mb-3">
-                    <button type="submit" class="btn btn-success">💾 Save Question</button>
+                    <button type="submit" class="btn btn-success">💾 Save</button>
                     <button type="button" id="previewBtn" class="btn btn-outline-dark">👁 Preview JSON</button>
                     <div id="status" class="ms-3"></div>
                 </div>
 
                 <div id="jsonPreview" class="card p-3" style="display:none; white-space:pre-wrap; font-family:monospace; max-height:300px; overflow:auto"></div>
             </form>
-
-            <hr />
-            <small class="text-muted">💡 Tips: Add at least 2 options. Select the correct answer. Topics help in filtering later.</small>
         </div>
     </div>
 </div>
 
 <script>
     const optionsList = document.getElementById('optionsList');
-    const correctSelect = document.getElementById('correctAnswer');
+    const correctAnswerBlock = document.getElementById('correctAnswerBlock');
     const topicsContainer = document.getElementById('topicsContainer');
     const subtopicsContainer = document.getElementById('subtopicsContainer');
     const tagsContainer = document.getElementById('tagsContainer');
@@ -141,159 +132,111 @@
     function createOptionRow(value = ''){
       const div = document.createElement('div');
       div.className = 'mb-2 option-row';
-
       const input = document.createElement('input');
-      input.type = 'text';
-      input.className = 'form-control';
-      input.placeholder = 'Option text';
-      input.value = value;
+      input.type = 'text'; input.className = 'form-control';
+      input.placeholder = 'Option text'; input.value = value;
       input.required = true;
-
       const removeBtn = document.createElement('button');
-      removeBtn.type = 'button';
-      removeBtn.className = 'btn btn-outline-danger btn-sm';
+      removeBtn.type = 'button'; removeBtn.className = 'btn btn-outline-danger btn-sm';
       removeBtn.textContent = '✖';
-      removeBtn.onclick = () => { div.remove(); refreshCorrectOptions(); };
-
-      div.appendChild(input);
-      div.appendChild(removeBtn);
+      removeBtn.onclick = () => { div.remove(); renderCorrectAnswerInputs(); };
+      div.appendChild(input); div.appendChild(removeBtn);
       return div;
-    }
-
-    function refreshCorrectOptions(){
-      correctSelect.innerHTML = '';
-      const inputs = Array.from(optionsList.querySelectorAll('input'));
-      inputs.forEach((inp, idx) => {
-        const opt = document.createElement('option');
-        opt.value = inp.value || `Option ${idx+1}`;
-        opt.textContent = inp.value || `Option ${idx+1}`;
-        correctSelect.appendChild(opt);
-      });
-    }
-
-    function createChip(text, container){
-      const span = document.createElement('span');
-      span.className = 'chip';
-      span.textContent = text;
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.innerHTML = '&times;';
-      btn.onclick = () => span.remove();
-      span.appendChild(btn);
-      container.appendChild(span);
     }
 
     function resetOptions(){
       optionsList.innerHTML = '';
-      for(let i=1;i<=4;i++) optionsList.appendChild(createOptionRow(''));
-      refreshCorrectOptions();
+      for(let i=0;i<4;i++) optionsList.appendChild(createOptionRow(''));
+      renderCorrectAnswerInputs();
     }
 
-    document.getElementById('addOptionBtn').addEventListener('click', ()=>{
-      optionsList.appendChild(createOptionRow(''));
-      refreshCorrectOptions();
-    });
-    document.getElementById('resetOptionsBtn').addEventListener('click', resetOptions);
+    function createChip(text, container){
+      const span = document.createElement('span');
+      span.className = 'chip'; span.textContent = text;
+      const btn = document.createElement('button'); btn.type = 'button'; btn.innerHTML = '&times;';
+      btn.onclick = () => span.remove(); span.appendChild(btn);
+      container.appendChild(span);
+    }
 
-    optionsList.addEventListener('input', ()=>{
-      const prev = correctSelect.value;
-      refreshCorrectOptions();
-      if(Array.from(correctSelect.options).some(o=>o.value===prev)) correctSelect.value = prev;
-    });
-
-    document.getElementById('addTopicBtn').addEventListener('click', ()=>{
-      const v = document.getElementById('topicInput').value.trim();
-      if(!v) return; createChip(v, topicsContainer); document.getElementById('topicInput').value='';
-    });
-    document.getElementById('addSubtopicBtn').addEventListener('click', ()=>{
-      const v = document.getElementById('subtopicInput').value.trim();
-      if(!v) return; createChip(v, subtopicsContainer); document.getElementById('subtopicInput').value='';
-    });
-    document.getElementById('addTagBtn').addEventListener('click', ()=>{
-      const v = document.getElementById('tagInput').value.trim();
-      if(!v) return; createChip(v, tagsContainer); document.getElementById('tagInput').value='';
-    });
-
-    document.getElementById('previewBtn').addEventListener('click', ()=>{
-      jsonPreview.style.display = jsonPreview.style.display === 'none' ? 'block' : 'none';
-      if(jsonPreview.style.display === 'block') jsonPreview.textContent = JSON.stringify(buildPayload(), null, 2);
-    });
+    function renderCorrectAnswerInputs(){
+      const qType = document.getElementById('questionType').value;
+      correctAnswerBlock.innerHTML = '';
+      if(qType === 'MCQ'){
+        const select = document.createElement('select');
+        select.id = 'correctAnswer'; select.className = 'form-select';
+        Array.from(optionsList.querySelectorAll('input')).forEach((inp, idx)=>{
+          const opt = document.createElement('option');
+          opt.value = inp.value || `Option ${idx+1}`;
+          opt.textContent = inp.value || `Option ${idx+1}`;
+          select.appendChild(opt);
+        });
+        correctAnswerBlock.appendChild(select);
+      } else if(qType === 'MSQ'){
+        correctAnswerBlock.innerHTML = '<label class="form-label">Select Correct Answers</label>';
+        Array.from(optionsList.querySelectorAll('input')).forEach((inp, idx)=>{
+          const div = document.createElement('div');
+          div.className = 'form-check';
+          const cb = document.createElement('input');
+          cb.type = 'checkbox'; cb.className = 'form-check-input';
+          cb.value = inp.value || `Option ${idx+1}`; cb.id = `cb${idx}`;
+          const lbl = document.createElement('label');
+          lbl.className = 'form-check-label'; lbl.htmlFor = `cb${idx}`;
+          lbl.textContent = inp.value || `Option ${idx+1}`;
+          div.appendChild(cb); div.appendChild(lbl);
+          correctAnswerBlock.appendChild(div);
+        });
+      } else if(qType === 'NAT'){
+        correctAnswerBlock.innerHTML = '<label class="form-label">Correct Answer (NAT)</label><input id="natAnswer" class="form-control" placeholder="Enter numeric/text answer">';
+      }
+    }
 
     function buildPayload(){
       const subject = document.getElementById('subject').value.trim();
       const difficulty = document.getElementById('difficulty').value;
+      const questionType = document.getElementById('questionType').value;
       const questionText = document.getElementById('questionText').value.trim();
       const optionInputs = Array.from(optionsList.querySelectorAll('input'));
       const options = optionInputs.map(i=>i.value.trim()).filter(s=>s.length>0);
-      const correctAnswer = [correctSelect.value];
+      let correctAnswer = [];
+      if(questionType==='MCQ'){
+        const sel = document.getElementById('correctAnswer');
+        if(sel) correctAnswer = [sel.value];
+      } else if(questionType==='MSQ'){
+        correctAnswer = Array.from(correctAnswerBlock.querySelectorAll('input:checked')).map(cb=>cb.value);
+      } else if(questionType==='NAT'){
+        const natVal = document.getElementById('natAnswer').value.trim();
+        if(natVal) correctAnswer = [natVal];
+      }
       const topics = Array.from(topicsContainer.querySelectorAll('.chip')).map(c=>c.firstChild.textContent);
       const subtopics = Array.from(subtopicsContainer.querySelectorAll('.chip')).map(c=>c.firstChild.textContent);
       const tags = Array.from(tagsContainer.querySelectorAll('.chip')).map(c=>c.firstChild.textContent);
       const imageUrl = document.getElementById('imageUrl').value.trim() || null;
 
-      return {
-        subject,
-        questionText,
-        options,
-        correctAnswer,
-        difficulty,
-        topic: topics,
-        subTopic: subtopics.length ? subtopics : null,
-        tags: tags.length ? tags : null,
-        imageUrl
-      };
+      return { subject, questionText, options, correctAnswer, difficulty, topic: topics,
+        subTopic: subtopics.length ? subtopics : null, tags: tags.length ? tags : null,
+        imageUrl, questionType };
     }
 
     document.getElementById('questionForm').addEventListener('submit', async (e)=>{
       e.preventDefault();
-      status.innerHTML = '';
-
       const payload = buildPayload();
-      if(!payload.subject || !payload.questionText){
-        status.innerHTML = '<span class="text-danger">Please fill subject and question text.</span>';
-        return;
-      }
-      if(payload.options.length < 2){
-        status.innerHTML = '<span class="text-danger">Please provide at least 2 non-empty options.</span>';
-        return;
-      }
-     if(!payload.correctAnswer || payload.correctAnswer.length === 0){
-  status.innerHTML = '<span class="text-danger">Please select a correct answer.</span>';
-  return;
-}
-if(!payload.correctAnswer.every(ans => payload.options.includes(ans))){
-  status.innerHTML = '<span class="text-danger">Correct answer must match one of the options.</span>';
-  return;
-}
-
-      if(!payload.topic || payload.topic.length === 0){
-        status.innerHTML = '<span class="text-danger">Add at least one topic.</span>';
-        return;
-      }
-
+      status.innerHTML = '<span class="text-muted">Saving…</span>';
       try{
-        status.innerHTML = '<span class="text-muted">Saving…</span>';
         const resp = await fetch('http://localhost:8080/questions/add', {
-          method: 'POST',
-          headers: {'Content-Type':'application/json'},
-          body: JSON.stringify(payload)
+          method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)
         });
-        if(resp.ok){
-          status.innerHTML = '<span class="text-success">✅ Saved successfully!</span>';
-          document.getElementById('questionForm').reset();
-          topicsContainer.innerHTML = '';
-          subtopicsContainer.innerHTML = '';
-          tagsContainer.innerHTML = '';
-          resetOptions();
-          jsonPreview.style.display='none';
-        } else {
-          const text = await resp.text();
-          status.innerHTML = `<span class="text-danger">Save failed: ${text || resp.status}</span>`;
-        }
-      }catch(err){
-        status.innerHTML = `<span class="text-danger">Network error: ${err.message}</span>`;
-      }
+        if(resp.ok){ status.innerHTML='<span class="text-success">✅ Saved!</span>'; resetOptions(); }
+        else status.innerHTML='<span class="text-danger">Save failed</span>';
+      }catch(err){ status.innerHTML=`<span class="text-danger">Network error: ${err.message}</span>`; }
     });
+
+    document.getElementById('questionType').addEventListener('change', renderCorrectAnswerInputs);
+    document.getElementById('addOptionBtn').addEventListener('click', ()=>{ optionsList.appendChild(createOptionRow('')); renderCorrectAnswerInputs(); });
+    document.getElementById('resetOptionsBtn').addEventListener('click', resetOptions);
+    document.getElementById('addTopicBtn').addEventListener('click', ()=>{ const v=document.getElementById('topicInput').value.trim(); if(v) createChip(v,topicsContainer); document.getElementById('topicInput').value=''; });
+    document.getElementById('addSubtopicBtn').addEventListener('click', ()=>{ const v=document.getElementById('subtopicInput').value.trim(); if(v) createChip(v,subtopicsContainer); document.getElementById('subtopicInput').value=''; });
+    document.getElementById('addTagBtn').addEventListener('click', ()=>{ const v=document.getElementById('tagInput').value.trim(); if(v) createChip(v,tagsContainer); document.getElementById('tagInput').value=''; });
+    document.getElementById('previewBtn').addEventListener('click', ()=>{ jsonPreview.style.display=jsonPreview.style.display==='none'?'block':'none'; if(jsonPreview.style.display==='block') jsonPreview.textContent=JSON.stringify(buildPayload(),null,2); });
 
     resetOptions();
 </script>
