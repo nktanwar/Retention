@@ -8,7 +8,7 @@ import org.springframework.data.mongodb.core.mapping.Document
 data class QuestionModel(
     @Id
     val id: String? = null,
-    val subject: String,
+    val subject: Subject,
     val questionText: String,
     val options: List<String>,
     val correctAnswer: List<String>,
@@ -29,4 +29,19 @@ enum class QuestionType {
     NAT
 }
 
+enum class Subject {
+    EM,   // Engineering Mathematics
+    DM,   // Discrete Mathematics
+    DL,   // Digital Logic
+    CO,   // Computer Organization / Architecture
+    PDS,  // Programming and Data Structures
+    ALGO, // Algorithms
+    TOC,  // Theory of Computation
+    CD,   // Compiler Design
+    OS,   // Operating Systems
+    DBMS, // Databases
+    CN,   // Computer Networks
+    SE, // Software Engineering,
+    GA,  // General Aptitude
 
+}

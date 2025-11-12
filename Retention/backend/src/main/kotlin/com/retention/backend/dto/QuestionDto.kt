@@ -1,8 +1,11 @@
 package com.retention.backend.dto
 
+import com.retention.backend.model.QuestionType
+import com.retention.backend.model.Subject
+
 
 data class AddQuestionRequestDto(
-    val subject: String,
+    val subject: Subject,
     val questionText: String,
     val options: List<String>,
     val correctAnswer: List<String>,
@@ -11,4 +14,7 @@ data class AddQuestionRequestDto(
     val subTopic: List<String>? = null,
     val tags : List<String>? = null,
     val image : String? = null,
+    val questionType : QuestionType
 )
+
+

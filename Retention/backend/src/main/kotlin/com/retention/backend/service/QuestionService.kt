@@ -17,8 +17,13 @@ class QuestionService (
             correctAnswer = dto.correctAnswer,
             difficulty = dto.difficulty,
             topic = dto.topic,
-            subTopic = dto.subTopic
+            subTopic = dto.subTopic,
+            questionType = dto.questionType
         )
         return questionRepository.save(entity)
     }
+
+
+
+
 }
