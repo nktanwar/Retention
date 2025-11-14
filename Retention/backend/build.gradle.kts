@@ -11,12 +11,16 @@ description = "backend for final year project "
 
 java {
 	toolchain {
-		languageVersion = JavaLanguageVersion.of(17)
+		languageVersion = JavaLanguageVersion.of(21)
 	}
 }
 
+
+
+
 repositories {
 	mavenCentral()
+	google()
 }
 
 dependencies {
