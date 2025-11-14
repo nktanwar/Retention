@@ -30,6 +30,7 @@ enum class QuestionType {
 }
 
 enum class Subject {
+                   ALL, // All Subjects
     EM,   // Engineering Mathematics
     DM,   // Discrete Mathematics
     DL,   // Digital Logic

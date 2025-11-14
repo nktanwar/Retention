@@ -24,7 +24,8 @@ data class TestSession(
 
     var scorePercent: Double? = null,   // ✅ add this
     var totalMarks: Double? = null,     // ✅ Double for consistency
-    var obtainedMarks: Double? = null   // ✅ Double for consistency
+    var obtainedMarks: Double? = null,   // ✅ Double for consistency
+    var userAnswers: Map<String, List<String>> = emptyMap()
 )
 
 data class TestQuestion(
